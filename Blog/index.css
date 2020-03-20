@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+}
+
+.header,
+.content,
+.lateral-content,
+.web-bottom {
+  padding: 1em 2em;
+}
+
+.content,
+.lateral-content,
+.web-bottom {
+  float: left;
+  box-sizing: border-box;
+}
+
+.header {
+  background-color: teal;
+  height: 100px;
+}
+
+.content {
+  width: 60%;
+}
+
+.lateral-content {
+  width: 40%;
+  background-color: royalblue;
+  height: 500px;
+}
+
+.post {
+  background-color: lightgreen;
+  height: 100px;
+  margin-bottom: 1em;
+  padding: 2px 2px 2px 2px;
+}
+
+.web-bottom {
+  width: 100%;
+  background-color: black;
+}
+
+div:first-child {
+  font-weight: bold;
+}
+
+h1 {
+  color: lightsalmon;
+}
+
+p {
+  color: rgb(196, 147, 43);
+}
+img {
+  width: 100%;
+  height: auto;
+}
+
+.end {
+  color: white;
+}
+
+.web-title {
+  font-size: 48px;
+  font-weight: bold;
+}
+#sideparagraph {
+  color: white;
+  font-weight: bold;
+}
