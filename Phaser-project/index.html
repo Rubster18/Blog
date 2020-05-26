@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="phaser.js"></script>
+    <title>Baby's first game</title>
+</head>
+<body>
+
+    <script type="text/javascript">
+    //engine configuration
+        var config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+    
+   
+        var game = new Phaser.Game(config);
+    //preload all assets
+        function preload ()
+        {
+            this.load.image('sky', 'assets/sky.png');
+            this.load.image('ground', 'assets/platform.png');
+            this.load.image('star', 'assets/star.png');
+            this.load.image('bomb', 'assets/bomb.png');
+            this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+        }
+    //global variables
+        var platforms;
+        var score = 0;
+        var scoreText;
+        var bombs;
+    //put all elements in the scene
+        function create ()
+        {
+            this.add.image(400, 300, 'sky');
+    
+            platforms = this.physics.add.staticGroup();
+    
+            platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+    
+            platforms.create(600, 400, 'ground');
+            platforms.create(50, 250, 'ground');
+            platforms.create(750, 220, 'ground');
+            
+            player = this.physics.add.sprite(100, 450, 'dude');
+            //player properties
+            player.setBounce(0.2);
+            player.setCollideWorldBounds(true);
+            //player animations
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+                frameRate: 10,
+                repeat: -1
+                });
+
+                this.anims.create({
+                key: 'turn',
+                frames: [ { key: 'dude', frame: 4 } ],
+                frameRate: 20
+                });
+
+            this.anims.create({
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            //player object tangibility
+            this.physics.add.collider(player, platforms);
+
+            //star creator and coordinates
+            stars = this.physics.add.group ({
+                key: 'star',
+                repeat: 11,
+                setXY: { x: 12, y:0, stepX: 70 }
+
+            }); 
+
+            //star properties 
+            stars.children.iterate(function (child){
+                child.setBounceY(Phaser.Math.FloatBetween (0.4, 0.8));
+            });
+            //star object tangibility
+            this.physics.add.collider(stars, platforms);
+
+            //set star collection state
+            this.physics.add.overlap(player, stars, collectStar, null);
+
+            function collectStar (player, star)
+            {
+                star.disableBody(true, true)
+                //score adding values + adding string to scoreText
+                score += 10;
+                scoreText.setText('Score: ' + score);
+
+                //reset the star counter
+                if (stars.countActive(true) === 0) {
+                    stars.children.iterate(function (child) {
+                        child.enableBody(true, child.x, 0, true, true);
+                    });
+                //bomb spawning
+                    var x = (player.x < 400) ?  Phaser.Math.Between(400, 800) :Phaser.Math.Between (0, 400);
+                    var bomb = bombs.create(x, 16, 'bomb');
+                    bomb.setBounce(1);
+                    bomb.setCollideWorldBounds(true);
+                    bomb.setVelocity(Phaser.Math.Between (-200, 200), 20);
+
+                }
+            }
+
+            //set bombs
+            bombs = this.physics.add.group();
+
+            //set bomb properties
+            this.physics.add.collider(bombs, platforms);
+            
+            //set bomb damage player state
+            this.physics.add.collider(player, bombs, hitBomb, null, this);
+
+            //bomb functionality
+            function hitBomb (player, bomb) {
+                this.physics.pause();
+                player.setTint(0xff0000);
+                player.anims.play('turn');
+                gameOver = true;
+            }
+
+
+            //set controls
+            cursors = this.input.keyboard.createCursorKeys();
+            //set score
+            scoreText = this.add.text(16, 16, 'score: 0', {
+                fontSize: '32px', fill: '#000'
+            });
+        }
+    //gameplay
+        function update ()
+        {
+            if (cursors.left.isDown) {
+                player.setVelocityX(-160);
+
+                player.anims.play('left', true);
+            }
+        else if (cursors.right.isDown) {
+            player.setVelocityX (160);
+
+            player.anims.play('right', true);
+        }
+        else 
+        {
+            player.setVelocity(0);
+
+            player.anims.play('turn');
+        }
+        if (cursors.up.isDown && player.body.touching.down) {
+            player.setVelocityY(-330);
+        }
+        }
+    
+    </script>
+    
+    </body>
+    </html>
